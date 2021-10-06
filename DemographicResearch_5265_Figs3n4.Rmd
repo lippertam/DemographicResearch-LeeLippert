@@ -1,0 +1,208 @@
+---
+title: "DemographicResearch_5265_Figs3n4"
+author: "AML"
+date: "9/26/2021"
+output: html_document
+---
+
+```{r}
+
+#Load needed packages
+packages<-c("tidyverse", "ggplot2", "lattice", "patchwork", "extrafont", "repr")
+lapply(packages, require, character.only = TRUE)
+
+#font_import()
+loadfonts(device="win")
+
+```
+
+
+```{r}
+#Initialize data frame and populate with predicted margins from Stata program
+#Figure 3 - predicted probabilities of child food insecurity by food stamp receipt
+
+fig3 <- data.frame(matrix(ncol = 4, nrow = 17))
+
+fig3$stampamt[1] <- 1
+fig3$stampamt[2] <- 2
+fig3$stampamt[3] <- 3
+fig3$stampamt[4] <- 4
+fig3$stampamt[5] <- 5
+fig3$stampamt[6] <- 6
+fig3$stampamt[7] <- 7
+fig3$stampamt[8] <- 8
+fig3$stampamt[9] <- 9
+fig3$stampamt[10] <- 10
+fig3$stampamt[11] <- 11
+fig3$stampamt[12] <- 12
+fig3$stampamt[13] <- 13
+fig3$stampamt[14] <- 14
+fig3$stampamt[15] <- 15
+fig3$stampamt[16] <- 16
+fig3$stampamt[17] <- 17
+
+#predicted probabilities of child food insecurity (derived with 'margins' from Stata file)
+fig3$pr[1] <- 0.0542375
+fig3$pr[2] <- 0.0490165
+fig3$pr[3] <- 0.0442807
+fig3$pr[4] <- 0.0399891
+fig3$pr[5] <- 0.0361032
+fig3$pr[6] <- 0.0325872
+fig3$pr[7] <- 0.0294079
+fig3$pr[8] <- 0.0265348
+fig3$pr[9] <- 0.0239394
+fig3$pr[10] <- 0.0215961
+fig3$pr[11] <- 0.019481
+fig3$pr[12] <- 0.0175724
+fig3$pr[13] <- 0.0158507
+fig3$pr[14] <- 0.0142979
+fig3$pr[15] <- 0.0128975
+fig3$pr[16] <- 0.0116349
+fig3$pr[17] <- 0.0104965
+
+#lower confidence interval of marginal mean predicted probability
+
+fig3$cil[1] <- 0.0173998
+fig3$cil[2] <- 0.0172213
+fig3$cil[3] <- 0.0165527
+fig3$cil[4] <- 0.0154731
+fig3$cil[5] <- 0.0140702
+fig3$cil[6] <- 0.012439
+fig3$cil[7] <- 0.0106762
+fig3$cil[8] <- 0.0088716
+fig3$cil[9] <- 0.0071008
+fig3$cil[10] <-0.0054212
+fig3$cil[11] <- 0.0038712
+fig3$cil[12] <- 0.0024731
+fig3$cil[13] <- 0.0012358
+fig3$cil[14] <- 0.0001594
+fig3$cil[15] <- -0.0007626
+fig3$cil[16] <- -0.0015404
+fig3$cil[17] <- -0.0021863
+
+#upper confidence interval of marginal mean predicted probability
+
+fig3$ciu[1] <- 0.0910751
+fig3$ciu[2] <- 0.0808117
+fig3$ciu[3] <- 0.0720087
+fig3$ciu[4] <- 0.064505
+fig3$ciu[5] <- 0.0581361
+fig3$ciu[6] <- 0.0527353
+fig3$ciu[7] <- 0.0481396
+fig3$ciu[8] <- 0.0441979
+fig3$ciu[9] <- 0.0407781
+fig3$ciu[10] <- 0.037771
+fig3$ciu[11] <- 0.0350907
+fig3$ciu[12] <- 0.0326718
+fig3$ciu[13] <- 0.0304656
+fig3$ciu[14] <- 0.0284363
+fig3$ciu[15] <- 0.0265576
+fig3$ciu[16] <- 0.0248101
+fig3$ciu[17] <- 0.0231792
+
+
+
+#Figure 4 - predicted probabilities of child food insecurity by children's school enrollment
+
+fig4 <- data.frame(matrix(ncol = 4, nrow = 3))
+
+fig4$X1[1] <- "No children"
+fig4$X1[2] <- "Some children"
+fig4$X1[3] <- "All children"
+
+fig4$order[1] <- 3
+fig4$order[2] <- 2
+fig4$order[3] <- 1
+
+fig4$pr[1] <- .088
+fig4$pr[2] <- .024
+fig4$pr[3] <- .027
+
+fig4$cil[1] <- .01
+fig4$cil[2] <- -.006
+fig4$cil[3] <- .001
+  
+fig4$ciu[1] <- .166
+fig4$ciu[2] <- .055
+fig4$ciu[3] <- .051
+
+
+```
+
+
+```
+Figure 3 plot of pr(cfi) by food stamp amount[linear]
+```{r}
+
+newbreaks=seq(1,17,by=1)
+newlabs=c("$0","","","","$100","","","","$200","","","","$300","","","","$400")
+ybreaks <- seq(0,.1,by=.025)
+ylabs <- c("0", "2.5%", "5%", "7.5%", "10%")
+
+
+fsnewplot <- ggplot(fig3, aes(x = stampamt, y = pr)) +
+  geom_ribbon(aes(ymin = cil, ymax = ciu), alpha = 0.2) +
+  geom_line() +
+ # geom_hline(yintercept = 0, color = "gray80") +
+  scale_y_continuous(breaks = ybreaks, labels = ylabs)+
+  scale_x_discrete(limits=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"), labels=newlabs) +
+  labs(x = "Food stamp amount", y = "Probability of CFI", caption = "Estimates are based on multiply-imputed survey-weighted data \nand adjusted for all variables shown in Table 3") +
+  expand_limits(y = c(-.005, .1)) +
+  theme_classic() +
+  theme(axis.title.x=element_text(color="black", family="Times New Roman", size=12),
+        axis.text.x=element_text(color="black", family="Times New Roman", size=12),
+        axis.ticks.x=element_line(),
+        axis.title.y=element_text(color="black", family="Times New Roman", size=12),
+        axis.text.y=element_text(color="black", family="Times New Roman", size=12),
+        plot.caption = element_text(color="gray50", family="Times New Roman", size=10, face="italic", hjust = .5, vjust = -2),
+        panel.grid.major.y = element_line(),
+        #panel.grid.major.x = element_blank(),
+        #panel.grid.minor.x = element_blank(),
+        legend.title = element_blank())
+        
+fsnewplot
+
+setwd("C:/Users/adam/Documents/Research/Homelessness/R03 - Food Insecurity/DemRes")
+ggsave(fsnewplot, filename = "fsnewplot.png", width = 5, height = 4, dpi=1000)
+
+
+
+```
+
+
+
+Figure 4 plot of pr(cfi) by children's school enrollment
+```{r}
+
+newbreaks=c(-.02, 0, .02, .04, .06, .08, .10, .12, .14, .16, .18)
+newlabs=c("", "0", "2%", "4%", "6%", "8%", "10%", "12%", "14%", "16%", "18%")
+
+sc <- ggplot(data = fig4, aes(x=reorder(X1, -order), y = pr, ymin = cil, ymax = ciu))
+
+sc <-  sc + geom_hline(yintercept = 0, color = "gray80") +
+  geom_pointrange(position = position_dodge(width=.9), size=.4) + 
+    scale_y_continuous(breaks = newbreaks, labels = newlabs)+
+    labs(x = NULL, y = "Probability of CFI", subtitle = "", caption = "Estimates are based on multiply-imputed survey-weighted data \nand adjusted for all variables shown in Table 3") +
+  expand_limits(y = c(-.02, .18)) +
+  theme_classic() +
+  theme(axis.title.x=element_text(),
+        axis.text.x=element_text(colour = "black", family="Times New Roman", size=10),
+        axis.ticks.x=element_line(),
+        axis.text.y=element_text(color = "black", family="Times New Roman", size=10),
+        axis.title.y = element_text(color="black", family="Times New Roman", size=10),
+        plot.subtitle = element_text(color="black", family="Times New Roman", size=10),
+        plot.caption = element_text(color="gray50", family="Times New Roman", size=10, face="italic", hjust = .5, vjust = -2),
+        legend.title = element_blank())+
+  guides(color = guide_legend(reverse = TRUE))
+
+sc <- sc + scale_color_manual(values="gray20")+
+  theme(legend.position = "none", text=element_text(family="Times New Roman", size=10))
+sc
+
+
+setwd("C:/Users/adam/Documents/Research/Homelessness/R03 - Food Insecurity/DemRes")
+ggsave(sc, filename = "sc.png", width = 5, height = 4, dpi=1000)
+
+
+```
+END
